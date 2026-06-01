@@ -80,5 +80,5 @@ npm start
 ```
 
 ### 2. Launch the Web Console:
-- Open your browser and navigate to: **`http://localhost:5000`**
+- Open your browser and navigate to: **`(https://fmcg-plum.vercel.app/)`**
 - All modals are fully responsive, supporting parent swipe/drag scrolling gestures on tablets and mobile screens without vertical cutoff bugs!
