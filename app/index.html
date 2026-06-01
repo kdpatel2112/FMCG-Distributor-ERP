@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Godrej FMCG Distributor ERP - Enterprise Portal</title>
+  <!-- Tailwind for optional custom styles and transitions, though we rely primarily on styles.css -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN for Dynamic Analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome for fallback styles and smooth icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Razorpay Checkout Standard SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+
+  <!-- Global Toast Alerts -->
+  <div id="toast-wrapper" class="toast-container"></div>
+
+  <!-- ==============================
+       3D LOGIN PORTAL OVERLAY
+       ============================== -->
+  <div id="login-portal-overlay">
+
+    <!-- Floating particles injected by JS -->
+
+    <!-- Branding Header -->
+    <div class="login-portal-header">
+      <div class="login-portal-logo-badge">G</div>
+      <div class="login-portal-title">Godrej FMCG ERP</div>
+      <div class="login-portal-subtitle">Select your portal to continue · Enterprise Distributor Platform</div>
+    </div>
+
+    <!-- 3 Portal Cards -->
+    <div class="login-cards-row">
+
+      <!-- Card 1: Client (Retailer) Portal -->
+      <div class="portal-card-wrapper" id="portal-card-client" data-portal="client" onclick="flipPortalCard('client')">
+        <div class="portal-card-inner">
+          <!-- Front Face -->
+          <div class="portal-card-face portal-card-front">
+            <div class="portal-icon-circle">🛍️</div>
+            <div class="portal-card-name">Client Portal</div>
+            <div class="portal-card-desc">Retail dealer access — place pack &amp; single-piece orders, track deliveries &amp; view invoices.</div>
+            <div class="portal-card-badge">Retailer · B2B</div>
+            <div class="portal-card-cta">Click to sign in &nbsp;→</div>
+          </div>
+          <!-- Back Face (Login Form) -->
+          <div class="portal-card-face portal-card-back">
+            <div class="portal-back-header">
+              <div class="portal-back-title">🛍️ Client Login</div>
+              <button class="portal-back-btn-return" onclick="unflipPortalCard(event, 'client')" title="Back">←</button>
+            </div>
+            <div>
+              <div class="portal-login-label">Username</div>
+              <input id="client-username" class="portal-login-input" type="text" placeholder="retailer" value="retailer" autocomplete="off">
+            </div>
+            <div>
+              <div class="portal-login-label">Password</div>
+              <input id="client-password" class="portal-login-input" type="password" placeholder="••••••••" value="client123">
+            </div>
+            <button class="portal-login-btn" onclick="handlePortalLogin(event, 'client')">🔓 Sign In</button>
+            <div class="portal-login-hint">Demo: <strong>retailer</strong> / <strong>client123</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Wholesaler Portal -->
+      <div class="portal-card-wrapper" id="portal-card-wholesaler" data-portal="wholesaler" onclick="flipPortalCard('wholesaler')">
+        <div class="portal-card-inner">
+          <!-- Front Face -->
+          <div class="portal-card-face portal-card-front">
+            <div class="portal-icon-circle">📦</div>
+            <div class="portal-card-name">Wholesaler Portal</div>
+            <div class="portal-card-desc">Bulk stockist access — case-quantity bookings, credit lines, distributor margins &amp; ledger.</div>
+            <div class="portal-card-badge">Wholesale · Stockist</div>
+            <div class="portal-card-cta">Click to sign in &nbsp;→</div>
+          </div>
+          <!-- Back Face (Login Form) -->
+          <div class="portal-card-face portal-card-back">
+            <div class="portal-back-header">
+              <div class="portal-back-title">📦 Wholesaler Login</div>
+              <button class="portal-back-btn-return" onclick="unflipPortalCard(event, 'wholesaler')" title="Back">←</button>
+            </div>
+            <div>
+              <div class="portal-login-label">Username</div>
+              <input id="wholesaler-username" class="portal-login-input" type="text" placeholder="wholesale" value="wholesale" autocomplete="off">
+            </div>
+            <div>
+              <div class="portal-login-label">Password</div>
+              <input id="wholesaler-password" class="portal-login-input" type="password" placeholder="••••••••" value="stock123">
+            </div>
+            <button class="portal-login-btn" onclick="handlePortalLogin(event, 'wholesaler')">🔓 Sign In</button>
+            <div class="portal-login-hint">Demo: <strong>wholesale</strong> / <strong>stock123</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Admin + Staff Portal -->
+      <div class="portal-card-wrapper" id="portal-card-admin" data-portal="admin" onclick="flipPortalCard('admin')">
+        <div class="portal-card-inner">
+          <!-- Front Face -->
+          <div class="portal-card-face portal-card-front">
+            <div class="portal-icon-circle">🏢</div>
+            <div class="portal-card-name">Admin &amp; Staff</div>
+            <div class="portal-card-desc">Internal team access — super admin, sales manager &amp; delivery fleet management.</div>
+            <div class="portal-card-badge">Admin · Sales · Delivery</div>
+            <div class="portal-card-cta">Click to sign in &nbsp;→</div>
+          </div>
+          <!-- Back Face (Login Form) -->
+          <div class="portal-card-face portal-card-back">
+            <div class="portal-back-header">
+              <div class="portal-back-title">🏢 Staff Login</div>
+              <button class="portal-back-btn-return" onclick="unflipPortalCard(event, 'admin')" title="Back">←</button>
+            </div>
+            <!-- Sub-role selector -->
+            <div>
+              <div class="portal-login-label">Select Role</div>
+              <div class="portal-sub-role-row">
+                <button class="portal-sub-role-btn active" id="sub-role-admin" onclick="selectSubRole(event, 'admin')">Admin</button>
+                <button class="portal-sub-role-btn" id="sub-role-sales" onclick="selectSubRole(event, 'sales')">Sales</button>
+                <button class="portal-sub-role-btn" id="sub-role-delivery" onclick="selectSubRole(event, 'delivery')">Delivery</button>
+              </div>
+            </div>
+            <div>
+              <div class="portal-login-label">Username</div>
+              <input id="admin-username" class="portal-login-input" type="text" placeholder="admin" value="admin" autocomplete="off">
+            </div>
+            <div>
+              <div class="portal-login-label">Password</div>
+              <input id="admin-password" class="portal-login-input" type="password" placeholder="••••••••" value="admin123">
+            </div>
+            <button class="portal-login-btn" onclick="handlePortalLogin(event, 'admin')">🔓 Sign In</button>
+            <div class="portal-login-hint">Demo: <strong>admin</strong> / <strong>admin123</strong><br>Full Admin + Sales + Delivery access</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /login-cards-row -->
+
+    <!-- Shop Registration Trigger -->
+    <div style="display:flex; justify-content:center; margin-top:36px; position:relative; z-index:20;">
+      <button class="btn btn-teal" style="
+        padding: 14px 32px; font-weight:700; font-size:1.05rem;
+        background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+        border: 2px solid rgba(13, 148, 136, 0.5);
+        box-shadow: 0 0 28px rgba(13, 148, 136, 0.6), 0 8px 32px rgba(0,0,0,0.55);
+        border-radius: 14px; letter-spacing: 0.5px;
+        color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      " onclick="openShopRegistrationModal()" onmouseover="this.style.transform='translateY(-2px) scale(1.03)'; this.style.boxShadow='0 0 36px rgba(13,148,136,0.8), 0 12px 40px rgba(0,0,0,0.6)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 0 28px rgba(13, 148, 136, 0.6), 0 8px 32px rgba(0,0,0,0.55)';">
+        <i data-lucide="store" style="width:18px; height:18px;"></i>
+        <span>Register New Shop / Sign Up</span>
+      </button>
+    </div>
+
+  </div><!-- /login-portal-overlay -->
+
+  <!-- Primary Application Wrapper -->
+  <div class="app-container">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="logo-container">
+        <div style="
+          width:40px; height:40px;
+          background:linear-gradient(135deg,#e31b23,#b91c1c);
+          border-radius:10px;
+          display:flex; align-items:center; justify-content:center;
+          font-family:'Outfit',sans-serif; font-weight:900;
+          font-size:1.35rem; color:#fff;
+          border:2px solid rgba(227,27,35,0.6);
+          box-shadow:0 0 14px rgba(227,27,35,0.4);
+          flex-shrink:0;
+        ">G</div>
+        <div class="logo-text">
+          GODREJ FMCG
+          <span>Distributor ERP</span>
+        </div>
+        <!-- Mobile close button -->
+        <button id="sidebar-close-btn" class="utility-button" style="display:none; margin-left:auto; background:transparent; border:none; color:var(--text-secondary); cursor:pointer;" onclick="toggleMobileSidebar()">
+          <i data-lucide="x" style="width:20px; height:20px;"></i>
+        </button>
+      </div>
+
+      <nav class="nav-menu">
+        <li class="nav-item active" data-view="dashboard">
+          <a onclick="switchView('dashboard')">
+            <i data-lucide="layout-dashboard"></i>
+            <span class="lang-en">Dashboard</span>
+            <span class="lang-hi" style="display:none;">डैशबोर्ड</span>
+            <span class="lang-gu" style="display:none;">ડેશબોર્ડ</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="catalog">
+          <a onclick="switchView('catalog')">
+            <i data-lucide="shopping-bag"></i>
+            <span class="lang-en">Products Catalog</span>
+            <span class="lang-hi" style="display:none;">उत्पाद कैटलॉग</span>
+            <span class="lang-gu" style="display:none;">પ્રોડક્ટ્સ કેટલોગ</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="orders">
+          <a onclick="switchView('orders')">
+            <i data-lucide="shopping-cart"></i>
+            <span class="lang-en">Order Requests</span>
+            <span class="lang-hi" style="display:none;">आर्डर अनुरोध</span>
+            <span class="lang-gu" style="display:none;">ઓર્ડર વિનંતીઓ</span>
+            <span class="badge badge-pending" id="sidebar-order-badge" style="margin-left:auto; display:none;">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="shops">
+          <a onclick="switchView('shops')">
+            <i data-lucide="store"></i>
+            <span class="lang-en">Distributors & Shops</span>
+            <span class="lang-hi" style="display:none;">दुकानें</span>
+            <span class="lang-gu" style="display:none;">દુકાનો</span>
+            <span class="badge badge-pending" id="sidebar-shop-badge" style="margin-left:auto; display:none;">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="sales">
+          <a onclick="switchView('sales')">
+            <i data-lucide="trending-up"></i>
+            <span class="lang-en">Sales Team Hub</span>
+            <span class="lang-hi" style="display:none;">सेल्स टीम हब</span>
+            <span class="lang-gu" style="display:none;">સેલ્સ ટીમ હબ</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="reports">
+          <a onclick="switchView('reports')">
+            <i data-lucide="file-text"></i>
+            <span class="lang-en">Reports & GST</span>
+            <span class="lang-hi" style="display:none;">रिपोर्ट्स और जीएसटी</span>
+            <span class="lang-gu" style="display:none;">રિપોર્ટ્સ અને જીએસટી</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="ai-hub">
+          <a onclick="switchView('ai-hub')">
+            <i data-lucide="cpu"></i>
+            <span class="lang-en">AI Analytics Hub</span>
+            <span class="lang-hi" style="display:none;">एआई एनालिटिक्स</span>
+            <span class="lang-gu" style="display:none;">એઆઈ એનાલિટિક્સ</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="gst-vault">
+          <a onclick="switchView('gst-vault')">
+            <i data-lucide="landmark"></i>
+            <span class="lang-en">GST & HSN Compliance</span>
+            <span class="lang-hi" style="display:none;">जीएसटी और एचएसएन</span>
+            <span class="lang-gu" style="display:none;">જીએસટી અને એચએસએન</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="mobile-app">
+          <a onclick="switchView('mobile-app')">
+            <i data-lucide="smartphone"></i>
+            <span class="lang-en">Mobile Simulator</span>
+            <span class="lang-hi" style="display:none;">मोबाइल सिम्युलेटर</span>
+            <span class="lang-gu" style="display:none;">મોબાઇલ સિમ્યુલેટર</span>
+          </a>
+        </li>
+        <li class="nav-item" data-view="credit-wallet">
+          <a onclick="switchView('credit-wallet')">
+            <i data-lucide="wallet"></i>
+            <span class="lang-en">Dealer Wallet</span>
+            <span class="lang-hi" style="display:none;">डीलर वॉलेट</span>
+            <span class="lang-gu" style="display:none;">ડીલર વૉલેટ</span>
+          </a>
+        </li>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-badge">
+          <div style="display:flex; align-items:center; gap:10px; cursor:pointer; flex:1; min-width:0;" onclick="switchView('profile')">
+            <div class="user-avatar" id="user-initials">GA</div>
+            <div class="user-details">
+              <div class="user-name" id="user-display-name">Admin Portal</div>
+              <div class="user-role" id="user-display-role">Super Admin</div>
+            </div>
+          </div>
+          <button class="utility-button" style="width: 28px; height: 28px; border-radius: 6px; flex-shrink:0;" onclick="triggerLogout()" title="Logout">
+            <i data-lucide="log-out" style="width: 14px; height: 14px;"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Workspace Wrapper -->
+    <main class="main-wrapper">
+      
+      <!-- Sticky Navigation Header -->
+      <header class="header">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <button class="utility-button" id="sidebar-toggle" style="display:none;" onclick="toggleMobileSidebar()">
+            <i data-lucide="menu"></i>
+          </button>
+          <div class="header-search-wrapper" id="search-wrapper">
+            <div class="header-search" id="header-search-bar">
+              <i data-lucide="search" id="search-icon-main" style="color:var(--text-muted); width:17px; height:17px; flex-shrink:0; transition:color 0.2s;"></i>
+              <input 
+                type="text" 
+                id="global-search-input" 
+                placeholder="Search products, orders, shops… (Ctrl+K)" 
+                autocomplete="off"
+                oninput="handleGlobalSearch(this.value)"
+                onfocus="openSearchDropdown()"
+                onkeydown="handleSearchKeydown(event)"
+              >
+              <button id="search-clear-btn" class="search-clear-btn" onclick="clearGlobalSearch()" title="Clear" style="display:none;">
+                <i data-lucide="x" style="width:14px; height:14px;"></i>
+              </button>
+              <div class="search-divider"></div>
+              <button class="utility-button search-voice-btn" onclick="startVoiceSearch()" title="Voice Search (speak to search)">
+                <i data-lucide="mic" id="voice-icon" style="width:15px; height:15px; color:var(--text-muted);"></i>
+              </button>
+            </div>
+
+            <!-- Live Search Dropdown -->
+            <div class="search-dropdown" id="search-dropdown" style="display:none;">
+              <!-- Filter tabs -->
+              <div class="search-filter-tabs">
+                <button class="search-tab active" data-filter="all" onclick="setSearchFilter('all', this)">
+                  <i data-lucide="layout-grid" style="width:13px;"></i> All
+                </button>
+                <button class="search-tab" data-filter="products" onclick="setSearchFilter('products', this)">
+                  <i data-lucide="package" style="width:13px;"></i> Products
+                </button>
+                <button class="search-tab" data-filter="orders" onclick="setSearchFilter('orders', this)">
+                  <i data-lucide="receipt" style="width:13px;"></i> Orders
+                </button>
+                <button class="search-tab" data-filter="shops" onclick="setSearchFilter('shops', this)">
+                  <i data-lucide="store" style="width:13px;"></i> Shops
+                </button>
+              </div>
+
+              <!-- Results Area -->
+              <div class="search-results-list" id="search-results-list">
+                <!-- Populated by JS -->
+              </div>
+
+              <!-- Footer -->
+              <div class="search-dropdown-footer">
+                <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+                <span><kbd>Enter</kbd> Select</span>
+                <span><kbd>Esc</kbd> Close</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <!-- Multi-language Select -->
+          <div class="language-selector">
+            <select id="lang-switcher" onchange="changeLanguage(this.value)">
+              <option value="en">🌐 EN (English)</option>
+              <option value="hi">🌐 HI (हिन्दी)</option>
+              <option value="gu">🌐 GU (ગુજરાતી)</option>
+            </select>
+          </div>
+
+          <!-- Dark/Light theme Toggle -->
+          <button class="utility-button" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+            <i data-lucide="sun" id="theme-icon-sun" style="display:none;"></i>
+            <i data-lucide="moon" id="theme-icon-moon"></i>
+          </button>
+
+          <!-- Notifications Panel Badge -->
+          <button class="utility-button" style="position:relative;" onclick="openNotificationsPanel()" title="System Notifications">
+            <i data-lucide="bell"></i>
+            <span class="badge badge-danger" id="notif-badge" style="position:absolute; top:-4px; right:-4px; width:18px; height:18px; display:flex; align-items:center; justify-content:center; padding:0; font-size:0.65rem;">0</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <div class="content-body">
+        
+        <!-- 1. DASHBOARD COMPONENT VIEW (Admin + Sales + Delivery Combined) -->
+        <section id="dashboard-section" class="animate-fade-in">
+
+          <!-- ===== ADMIN COMMAND CENTRE TAB BAR ===== -->
+          <div id="admin-tab-bar" style="
+            display:flex; gap:8px; margin-bottom:28px;
+            background:rgba(255,255,255,0.03);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:16px; padding:6px;
+          ">
+            <button id="atab-admin" class="admin-cmd-tab active" onclick="switchAdminTab('admin')">
+              📊 <span>Admin Overview</span>
+            </button>
+            <button id="atab-sales" class="admin-cmd-tab" onclick="switchAdminTab('sales')">
+              👥 <span>Sales Hub</span>
+            </button>
+            <button id="atab-delivery" class="admin-cmd-tab" onclick="switchAdminTab('delivery')">
+              🚚 <span>Delivery Hub</span>
+            </button>
+          </div>
+
+          <!-- ===== PANEL 1: ADMIN OVERVIEW ===== -->
+          <div id="admin-panel-admin">
+            <div class="dashboard-title-row">
+              <div>
+                <h1 class="lang-en">Enterprise BI Console</h1>
+                <h1 class="lang-hi" style="display:none;">उद्यम बीआई कंसोल</h1>
+                <h1 class="lang-gu" style="display:none;">એન્ટરપ્રાઇઝ બીઆઈ કન્સોલ</h1>
+                <p class="lang-en">Real-time Godrej Consumer Products distribution analytics</p>
+                <p class="lang-hi" style="display:none;">वास्तविक समय गोदरेज कंज्यूमर प्रोडक्ट्स वितरण विश्लेषण</p>
+                <p class="lang-gu" style="display:none;">રિયલ-ટાઇમ ગોદરેજ કન્ઝ્યુમર પ્રોડક્ટ્સ વિતરણ વિશ્લેષણ</p>
+              </div>
+              <div>
+                <span class="badge badge-approved" style="font-size:0.85rem; padding:8px 16px;" id="dashboard-last-sync">Live Database Status</span>
+              </div>
+            </div>
+
+            <!-- KPI Data Badges -->
+            <div class="kpi-grid" id="kpi-container">
+              <!-- Populated via Javascript -->
+            </div>
+
+            <!-- Charts and Real-time lists layout -->
+            <div class="dashboard-layout-row">
+              <!-- Analytics Graph Grid -->
+              <div class="glass-panel" style="padding:24px;">
+                <div class="panel-header">
+                  <h3><i data-lucide="bar-chart-3" style="color:var(--primary);"></i> Distribution Finance Analytics</h3>
+                  <div class="language-selector">
+                    <select id="chart-data-range" onchange="updateDashboardCharts()" style="font-size:0.75rem; padding:4px 8px;">
+                      <option value="7">Last 7 Days</option>
+                      <option value="30" selected>Last 30 Days</option>
+                      <option value="365">This Fiscal Year</option>
+                    </select>
+                  </div>
+                </div>
+                <div style="height: 300px; position: relative;">
+                  <canvas id="main-analytics-chart"></canvas>
+                </div>
+              </div>
+
+              <!-- Dynamic Actions sidebar -->
+              <div class="glass-panel" style="padding:24px;">
+                <div class="panel-header">
+                  <h3><i data-lucide="zap" style="color:var(--warning);"></i> Intelligent Operations</h3>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:16px;" id="ai-insights-panel">
+                  <!-- AI Insights rendered here -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Lower Details Layout: Order Log & Stock alerts -->
+            <div class="dashboard-layout-row equal-split">
+              <!-- Active Pending orders -->
+              <div class="glass-panel" style="padding:24px;">
+                <div class="panel-header">
+                  <h3><i data-lucide="clock" style="color:var(--warning);"></i> Order Request Pipeline</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="switchView('orders')">View All</button>
+                </div>
+                <div class="table-responsive">
+                  <table class="erp-table">
+                    <thead>
+                      <tr>
+                        <th>Order ID</th>
+                        <th>Shop Details</th>
+                        <th>Amount</th>
+                        <th>Tax (GST)</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashboard-orders-table">
+                      <!-- Populated via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- Low Stock Warnings -->
+              <div class="glass-panel" style="padding:24px;">
+                <div class="panel-header">
+                  <h3><i data-lucide="package-x" style="color:var(--danger);"></i> Low Stock Warning Logs</h3>
+                  <button class="btn btn-secondary btn-sm" onclick="triggerAutoReorder()">Auto Reorder Smart Alert</button>
+                </div>
+                <div class="table-responsive">
+                  <table class="erp-table">
+                    <thead>
+                      <tr>
+                        <th>Product</th>
+                        <th>Box Stock</th>
+                        <th>Single Piece</th>
+                        <th>Min Level</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dashboard-stock-table">
+                      <!-- Populated via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div><!-- ===== END PANEL 1: ADMIN OVERVIEW ===== -->
+
+          <!-- ===== PANEL 2: SALES HUB ===== -->
+          <div id="admin-panel-sales" style="display:none;">
+            <div class="dashboard-title-row">
+              <div>
+                <h1 class="lang-en">Sales Manager Command Centre</h1>
+                <h1 class="lang-hi" style="display:none;">सेल्स मैनेजर कमांड सेंटर</h1>
+                <h1 class="lang-gu" style="display:none;">સેલ્સ મેનેજર કમાન્ડ સેન્ટર</h1>
+                <p class="lang-en">Track regional targets, customer relationship notes, and physical shop visit activities</p>
+                <p class="lang-hi" style="display:none;">क्षेत्रीय लक्ष्यों, ग्राहक संबंध नोट्स और भौतिक दुकान यात्रा गतिविधियों को ट्रैक करें</p>
+                <p class="lang-gu" style="display:none;">પ્રાદેશિક લક્ષ્યો, ગ્રાહક સંબંધોના નોટ્સ અને પ્રત્યક્ષ દુકાનની મુલાકાતોને ટ્રેક કરો</p>
+              </div>
+            </div>
+
+            <!-- Target Charts & Notes log -->
+            <div class="dashboard-layout-row equal-split">
+              <div class="glass-panel" style="padding:24px;">
+                <div class="panel-header">
+                  <h3><i data-lucide="target" style="color:var(--primary);"></i> Target Performance Quotient</h3>
+                </div>
+                <div style="height: 250px; position:relative;">
+                  <canvas id="admin-sales-target-chart"></canvas>
+                </div>
+              </div>
+
+              <!-- Notes log -->
+              <div class="glass-panel" style="padding:24px; display:flex; flex-direction:column;">
+                <div class="panel-header">
+                  <h3><i data-lucide="file-signature" style="color:var(--accent-teal);"></i> Log Shop Visit & Activity</h3>
+                </div>
+                <form id="admin-visit-log-form" onsubmit="handleVisitLogSubmit(event)" style="display:flex; flex-direction:column; gap:12px; flex:1;">
+                  <div class="form-input-group" style="margin-bottom:0;">
+                    <label>Select Distributor/Shop</label>
+                    <select id="admin-visit-shop-select" class="form-control" required>
+                      <!-- Populate via JS -->
+                    </select>
+                  </div>
+                  <div class="form-input-group" style="margin-bottom:0;">
+                    <label>Sales Visit Summary Notes</label>
+                    <textarea id="admin-visit-notes" class="form-control" rows="3" placeholder="Log order prospects, loyalty comments..." required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-primary" style="margin-top:auto;"><i data-lucide="save"></i> Save Visit Record</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Activity log table -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="clipboard-list" style="color:var(--text-secondary);"></i> Shop Activity Audits & Logs</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="erp-table">
+                  <thead>
+                    <tr>
+                      <th>Timestamp</th>
+                      <th>User Role</th>
+                      <th>Shop Targeted</th>
+                      <th>Activity Log details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-sales-activities-log">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div><!-- ===== END PANEL 2: SALES HUB ===== -->
+
+          <!-- ===== PANEL 3: DELIVERY HUB ===== -->
+          <div id="admin-panel-delivery" style="display:none;">
+            <div class="dashboard-title-row">
+              <div>
+                <h1 class="lang-en">Delivery & Logistics Command</h1>
+                <h1 class="lang-hi" style="display:none;">वितरण और रसद हब</h1>
+                <h1 class="lang-gu" style="display:none;">ડિલિવરી અને લોજિસ્ટિક્સ હબ</h1>
+                <p class="lang-en">Track live GPS shipments, manage wholesale dispatches, and verify delivery signatures</p>
+                <p class="lang-hi" style="display:none;">लाइव जीपीएस शिपमेंट ट्रैक करें, थोक प्रेषण प्रबंधित करें, और डिलीवरी हस्ताक्षरों को सत्यापित करें</p>
+                <p class="lang-gu" style="display:none;">લાઇવ જીપીએસ શિપમેન્ટ્સ ટ્રેક કરો, જથ્થાબંધ ડિસ્પેચ મેનેજ કરો અને ડિલિવરી હસ્તાક્ષરો ચકાસો</p>
+              </div>
+              <div style="display:flex; gap:12px;">
+                <button class="btn btn-secondary" onclick="exportOrdersCSV()"><i data-lucide="download"></i> Export Orders</button>
+              </div>
+            </div>
+
+            <!-- Delivery Hub KPIs -->
+            <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 24px;">
+              <div class="glass-panel kpi-card" style="--border-color: var(--accent-teal); --bg-glow: rgba(13,148,136,0.15)">
+                <div class="kpi-header">
+                  <span>Transit Shipments</span>
+                  <i data-lucide="truck"></i>
+                </div>
+                <div class="kpi-value" id="delivery-kpi-transit">0</div>
+                <div class="kpi-trend up"><i data-lucide="trending-up" style="width:12px;"></i> Active GPS Tracking</div>
+              </div>
+              <div class="glass-panel kpi-card" style="--border-color: var(--success); --bg-glow: rgba(16,185,129,0.15)">
+                <div class="kpi-header">
+                  <span>Delivered Today</span>
+                  <i data-lucide="check-circle-2"></i>
+                </div>
+                <div class="kpi-value" id="delivery-kpi-delivered">0</div>
+                <div class="kpi-trend up"><i data-lucide="award" style="width:12px;"></i> 100% SLA Fulfillment</div>
+              </div>
+              <div class="glass-panel kpi-card" style="--border-color: var(--warning); --bg-glow: rgba(245,158,11,0.15)">
+                <div class="kpi-header">
+                  <span>Pending Dispatch</span>
+                  <i data-lucide="clock"></i>
+                </div>
+                <div class="kpi-value" id="delivery-kpi-pending">0</div>
+                <div class="kpi-trend flat"><i data-lucide="alert-circle" style="width:12px;"></i> Awaiting Packing</div>
+              </div>
+            </div>
+
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="shopping-cart" style="color:var(--primary);"></i> Order Registry & Dispatch Controls</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="erp-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Shop / Distributor Details</th>
+                      <th>Zone</th>
+                      <th>Items</th>
+                      <th>Total Tax (GST)</th>
+                      <th>Grand Total</th>
+                      <th>Delivery Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-orders-registry-table">
+                    <!-- Load orders here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div><!-- ===== END PANEL 3: DELIVERY HUB ===== -->
+
+        </section>
+
+        <!-- 1.5. RETAILER CLIENT PORTAL DASHBOARD VIEW -->
+        <section id="retailer-dashboard-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en" id="retailer-portal-title">Godrej Retailer Client Portal</h1>
+              <h1 class="lang-hi" style="display:none;">गोदरेज रिटेलर क्लाइंट पोर्टल</h1>
+              <h1 class="lang-gu" style="display:none;">ગોદરેજ રિટેલર ક્લાયન્ટ પોર્ટલ</h1>
+              <p class="lang-en">B2B Retail Client: Pack & single piece orders, fast tracking ETAs</p>
+              <p class="lang-hi" style="display:none;">B2B रिटेलर क्लाइंट: पैक और सिंगल पीस ऑर्डर, फास्ट ट्रैकिंग ईटीए</p>
+              <p class="lang-gu" style="display:none;">B2B રિટેલર ક્લાયન્ટ: પેક અને સિંગલ પીસ ઓર્ડર્સ, ફાસ્ટ ટ્રેકિંગ ETA</p>
+            </div>
+            <div>
+              <span class="badge badge-approved" id="retailer-rank-badge" style="font-size:0.85rem; padding:8px 16px;">Retail Gold Partner</span>
+            </div>
+          </div>
+
+          <!-- Retailer KPI Cards -->
+          <div class="kpi-grid">
+            <div class="glass-panel kpi-card" style="--border-color: var(--success); --bg-glow: rgba(16,185,129,0.15)">
+              <div class="kpi-header">
+                <span>Client Prepaid Wallet</span>
+                <i data-lucide="piggy-bank"></i>
+              </div>
+              <div class="kpi-value" id="retailer-kpi-wallet">₹0.00</div>
+              <div class="kpi-trend up"><i data-lucide="arrow-up-right"></i> Recharge Sandbox Active</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--warning)">
+              <div class="kpi-header">
+                <span>Active Retail Bookings</span>
+                <i data-lucide="shopping-cart"></i>
+              </div>
+              <div class="kpi-value" id="retailer-kpi-bookings">0</div>
+              <div class="kpi-trend flat">In Dispatch Pipeline</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--accent-teal); --bg-glow: var(--accent-teal-glow)">
+              <div class="kpi-header">
+                <span>Retail Loyalty Points</span>
+                <i data-lucide="award"></i>
+              </div>
+              <div class="kpi-value" id="retailer-kpi-loyalty">0 Pts</div>
+              <div class="kpi-trend up"><i data-lucide="sparkles"></i> standard Coupon Term</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--danger)">
+              <div class="kpi-header">
+                <span>Outstanding Dues</span>
+                <i data-lucide="alert-triangle"></i>
+              </div>
+              <div class="kpi-value" id="retailer-kpi-outstanding" style="color:var(--danger);">₹0.00</div>
+              <div class="kpi-trend down">Repayment Term Active</div>
+            </div>
+          </div>
+
+          <div class="dashboard-layout-row">
+            <!-- Personalized purchase history -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="clipboard-list" style="color:var(--primary);"></i> Your Retail Orders Ledger</h3>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('catalog')"><i data-lucide="plus"></i> Order Pieces/Packs</button>
+              </div>
+              <div class="table-responsive">
+                <table class="erp-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Items Booked</th>
+                      <th>CGST/SGST</th>
+                      <th>Total Amount</th>
+                      <th>Status</th>
+                      <th>Invoice</th>
+                    </tr>
+                  </thead>
+                  <tbody id="retailer-orders-tbody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- AI Retail Recommended Packages -->
+            <div class="glass-panel" style="padding:24px;">
+              <!-- Active Order Delivery Tracker -->
+              <div id="retailer-active-tracker-card" class="glass-panel" style="padding:16px; margin-bottom:20px; border-left:4px solid var(--primary); display:none; background:rgba(255,255,255,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <h4 style="font-size:0.85rem; font-weight:700; font-family:var(--font-heading); color:var(--primary); display:flex; align-items:center; gap:6px;"><i data-lucide="truck" style="width:16px; height:16px;"></i> Live Order Transit Tracker</h4>
+                  <span id="retailer-tracker-id" style="font-size:0.7rem; font-family:monospace; font-weight:bold; color:var(--text-muted);">ORD-2026-001</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:6px;">
+                  <span>Dispatch State: <strong id="retailer-tracker-status" style="color:var(--primary);">Packed</strong></span>
+                  <span id="retailer-tracker-eta" style="color:var(--accent-teal); font-weight:600;">12 mins remaining</span>
+                </div>
+                <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; margin-bottom:12px;">
+                  <div id="retailer-tracker-progress" style="width:50%; height:100%; background:var(--primary); transition:width 0.5s ease-in-out;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:var(--text-secondary); font-weight:600;">
+                  <span>Pending</span>
+                  <span>Approved</span>
+                  <span>In Transit</span>
+                  <span>Delivered</span>
+                </div>
+              </div>
+
+              <div class="panel-header">
+                <h3><i data-lucide="sparkles" style="color:var(--warning);"></i> Retail AI recommended Assortments</h3>
+              </div>
+              <p style="font-size:0.775rem; color:var(--text-secondary); margin-bottom:14px;">Fast moving packages with custom retailer margins.</p>
+              
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="glass-panel" style="padding:12px; border-left:4px solid var(--accent-teal); display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4 style="font-size:0.8rem; font-weight:700;">Mosquito Protection Starter Kit</h4>
+                    <p style="font-size:0.65rem; color:var(--text-muted);">Good Knight Machine (6x) + Refills (12x)</p>
+                  </div>
+                  <button class="btn btn-teal btn-sm" onclick="loadAIBundleToCart('Mosquito Protection Starter Kit')">Add Cart</button>
+                </div>
+
+                <div class="glass-panel" style="padding:12px; border-left:4px solid var(--primary); display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4 style="font-size:0.8rem; font-weight:700;">Family Hygiene Core Pack</h4>
+                    <p style="font-size:0.65rem; color:var(--text-muted);">Cinthol Cool Soap (12x) + Protekt Sanitizer (4x)</p>
+                  </div>
+                  <button class="btn btn-teal btn-sm" onclick="loadAIBundleToCart('Family Hygiene Core Pack')">Add Cart</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 1.6. BULK STOCKIST WHOLESALER PORTAL VIEW -->
+        <section id="wholesaler-dashboard-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en" id="wholesaler-portal-title">Bulk Stockist Wholesaler Portal</h1>
+              <h1 class="lang-hi" style="display:none;">थोक वितरक पोर्टल</h1>
+              <h1 class="lang-gu" style="display:none;">જથ્થાબંધ વિતરક પોર્ટલ</h1>
+              <p class="lang-en">B2B Wholesaler: Case quantity bookings, lower distributor margins, & credit lines</p>
+              <p class="lang-hi" style="display:none;">B2B थोक व्यापारी: केस मात्रा बुकिंग, कम वितरक मार्जिन और क्रेडिट लाइन</p>
+              <p class="lang-gu" style="display:none;">B2B જથ્થાબંધ વેપારી: કેસ ક્વોન્ટિટી બુકિંગ્સ, નીચા વિતરક માર્જિન્સ અને ક્રેડિટ લિમિટ્સ</p>
+            </div>
+            <div>
+              <span class="badge badge-approved" id="wholesaler-rank-badge" style="font-size:0.85rem; padding:8px 16px; background:var(--primary-glow); color:var(--primary);">Platinum Distributor Tier</span>
+            </div>
+          </div>
+
+          <!-- Wholesaler KPI Cards -->
+          <div class="kpi-grid">
+            <div class="glass-panel kpi-card" style="--border-color: var(--success); --bg-glow: rgba(16,185,129,0.15)">
+              <div class="kpi-header">
+                <span>Distributor Prepaid Balance</span>
+                <i data-lucide="piggy-bank"></i>
+              </div>
+              <div class="kpi-value" id="wholesaler-kpi-wallet">₹0.00</div>
+              <div class="kpi-trend up"><i data-lucide="arrow-up-right"></i> High Volume terms</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--warning)">
+              <div class="kpi-header">
+                <span>Active Bulk Bookings</span>
+                <i data-lucide="shopping-cart"></i>
+              </div>
+              <div class="kpi-value" id="wholesaler-kpi-bookings">0</div>
+              <div class="kpi-trend flat">In Dispatch Pipeline</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--accent-teal); --bg-glow: var(--accent-teal-glow)">
+              <div class="kpi-header">
+                <span>Stockist Rewards</span>
+                <i data-lucide="award"></i>
+              </div>
+              <div class="kpi-value" id="wholesaler-kpi-loyalty">0 Pts</div>
+              <div class="kpi-trend up"><i data-lucide="sparkles"></i> Platinum distributor Term</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--danger)">
+              <div class="kpi-header">
+                <span>Outstanding Dues</span>
+                <i data-lucide="alert-triangle"></i>
+              </div>
+              <div class="kpi-value" id="wholesaler-kpi-outstanding" style="color:var(--danger);">₹0.00</div>
+              <div class="kpi-trend down">Repayment Active</div>
+            </div>
+          </div>
+
+          <div class="dashboard-layout-row">
+            <!-- Personalized purchase history -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="clipboard-list" style="color:var(--primary);"></i> Your Wholesale Orders Ledger</h3>
+                <button class="btn btn-secondary btn-sm" onclick="switchView('catalog')"><i data-lucide="plus"></i> Order Bulk Boxes</button>
+              </div>
+              <div class="table-responsive">
+                <table class="erp-table">
+                  <thead>
+                    <tr>
+                      <th>Order ID</th>
+                      <th>Date</th>
+                      <th>Items Booked</th>
+                      <th>CGST/SGST</th>
+                      <th>Total Amount</th>
+                      <th>Status</th>
+                      <th>Invoice</th>
+                    </tr>
+                  </thead>
+                  <tbody id="wholesaler-orders-tbody">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- AI Wholesaler Recommended Packages -->
+            <div class="glass-panel" style="padding:24px;">
+              <!-- Active Order Delivery Tracker -->
+              <div id="wholesaler-active-tracker-card" class="glass-panel" style="padding:16px; margin-bottom:20px; border-left:4px solid var(--primary); display:none; background:rgba(255,255,255,0.02);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                  <h4 style="font-size:0.85rem; font-weight:700; font-family:var(--font-heading); color:var(--primary); display:flex; align-items:center; gap:6px;"><i data-lucide="truck" style="width:16px; height:16px;"></i> Live Bulk Order Transit Tracker</h4>
+                  <span id="wholesaler-tracker-id" style="font-size:0.7rem; font-family:monospace; font-weight:bold; color:var(--text-muted);">ORD-2026-002</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:6px;">
+                  <span>Dispatch State: <strong id="wholesaler-tracker-status" style="color:var(--primary);">Out for Delivery</strong></span>
+                  <span id="wholesaler-tracker-eta" style="color:var(--accent-teal); font-weight:600;">18 mins remaining</span>
+                </div>
+                <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; margin-bottom:12px;">
+                  <div id="wholesaler-tracker-progress" style="width:75%; height:100%; background:var(--primary); transition:width 0.5s ease-in-out;"></div>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:0.6rem; color:var(--text-secondary); font-weight:600;">
+                  <span>Pending</span>
+                  <span>Approved</span>
+                  <span>In Transit</span>
+                  <span>Delivered</span>
+                </div>
+              </div>
+
+              <div class="panel-header">
+                <h3><i data-lucide="sparkles" style="color:var(--warning);"></i> Wholesaler AI Bulk Bundles</h3>
+              </div>
+              <p style="font-size:0.775rem; color:var(--text-secondary); margin-bottom:14px;">Special pre-packaged high-volume Godrej stock cases with extra 5% distributor margins.</p>
+              
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div class="glass-panel" style="padding:12px; border-left:4px solid var(--accent-teal); display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4 style="font-size:0.8rem; font-weight:700;">Monsoon Vaporizer Protection Kit</h4>
+                    <p style="font-size:0.65rem; color:var(--text-muted);">Good Knight Gold Machine (24x) + Refills (48x)</p>
+                  </div>
+                  <button class="btn btn-teal btn-sm" onclick="loadAIBundleToCart('Monsoon Vaporizer Protection Kit')">Load Cart</button>
+                </div>
+
+                <div class="glass-panel" style="padding:12px; border-left:4px solid var(--primary); display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4 style="font-size:0.8rem; font-weight:700;">Family Hygiene Super Saver</h4>
+                    <p style="font-size:0.65rem; color:var(--text-muted);">Cinthol Cool Soap (48x) + Protekt Sanitizer (12x)</p>
+                  </div>
+                  <button class="btn btn-teal btn-sm" onclick="loadAIBundleToCart('Family Hygiene Super Saver')">Load Cart</button>
+                </div>
+
+                <div class="glass-panel" style="padding:12px; border-left:4px solid var(--warning); display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <h4 style="font-size:0.8rem; font-weight:700;">All-Weather Personal Care Pack</h4>
+                    <p style="font-size:0.65rem; color:var(--text-muted);">Godrej No.1 Soap (96x) + Rich Creme Hair Colour (60x)</p>
+                  </div>
+                  <button class="btn btn-teal btn-sm" onclick="loadAIBundleToCart('All-Weather Personal Care Pack')">Load Cart</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. PRODUCT CATALOG VIEW -->
+        <section id="catalog-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">Godrej Product Catalog</h1>
+              <h1 class="lang-hi" style="display:none;">गोदरेज उत्पाद कैटलॉग</h1>
+              <h1 class="lang-gu" style="display:none;">ગોદરેજ પ્રોડક્ટ કેટલોગ</h1>
+              <p class="lang-en">Real-time inventory access, stock counts, & dynamic GST allocations</p>
+              <p class="lang-hi" style="display:none;">वास्तविक समय सूची पहुंच, स्टॉक गणना और गतिशील जीएसटी आवंटन</p>
+              <p class="lang-gu" style="display:none;">રિયલ-ટાઇમ ઇન્વેન્ટરી એક્સેસ, સ્ટોક ગણતરી અને ગતિશીલ જીએસટી ફાળવણી</p>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <button class="btn btn-teal" id="add-product-btn" onclick="openProductFormModal()" style="display:none;">
+                <i data-lucide="plus-circle"></i> Add New Product
+              </button>
+              <button class="btn btn-secondary" onclick="openBarcodeModal()">
+                <i data-lucide="scan"></i> Scan Barcode
+              </button>
+            </div>
+          </div>
+
+          <!-- Filters bar -->
+          <div class="glass-panel" style="padding:16px 24px; margin-bottom:24px; display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+              <span class="lang-en" style="font-weight:600; font-size:0.85rem; color:var(--text-secondary);">Categories:</span>
+              <span class="lang-hi" style="display:none; font-weight:600; font-size:0.85rem; color:var(--text-secondary);">श्रेणी:</span>
+              <span class="lang-gu" style="display:none; font-weight:600; font-size:0.85rem; color:var(--text-secondary);">શ્રેણીઓ:</span>
+              
+              <div style="display:flex; gap:6px;" id="category-filter-chips">
+                <!-- Renders chips dynamically -->
+              </div>
+            </div>
+
+            <div style="display:flex; gap:12px; align-items:center;">
+              <span class="lang-en" style="font-weight:600; font-size:0.85rem; color:var(--text-secondary);">Sort Price:</span>
+              <select id="catalog-price-sort" onchange="renderProductCatalog()" class="form-control" style="padding:6px 12px; font-size:0.8rem;">
+                <option value="none">Default Sort</option>
+                <option value="low">Low to High</option>
+                <option value="high">High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="catalog-grid" id="catalog-products-container">
+            <!-- Loaded dynamically -->
+          </div>
+        </section>
+
+        <!-- 3. ORDER QUEUE VIEW -->
+        <section id="orders-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">Wholesale Order Registry</h1>
+              <h1 class="lang-hi" style="display:none;">थोक आदेश पंजीकरण</h1>
+              <h1 class="lang-gu" style="display:none;">જથ્થાબંધ ઓર્ડર રજિસ્ટ્રી</h1>
+              <p class="lang-en">Review wholesale bulk bookings, dispatch stages, and automated GST billing invoices</p>
+              <p class="lang-hi" style="display:none;">थोक बुकिंग, प्रेषण चरणों और स्वचालित जीएसटी बिलिंग चालानों की समीक्षा करें</p>
+              <p class="lang-gu" style="display:none;">જથ્થાબંધ બુકિંગ, ડિસ્પેચ તબક્કા અને સ્વચાલિત જીએસટી બિલિંગ ઇન્વૉઇસેસની સમીક્ષા કરો</p>
+            </div>
+            <div style="display:flex; gap:12px;">
+              <button class="btn btn-secondary" onclick="exportOrdersCSV()"><i data-lucide="download"></i> Export Orders</button>
+            </div>
+          </div>
+
+          <div class="glass-panel" style="padding:24px;">
+            <div class="table-responsive">
+              <table class="erp-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Shop / Distributor Details</th>
+                    <th>Zone</th>
+                    <th>Items</th>
+                    <th>Total Tax (GST)</th>
+                    <th>Grand Total</th>
+                    <th>Delivery Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-registry-table">
+                  <!-- Load orders here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. SHOP DIRECTORY VIEW -->
+        <section id="shops-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">Distributor & Shop Registry</h1>
+              <h1 class="lang-hi" style="display:none;">वितरक और दुकान रजिस्ट्री</h1>
+              <h1 class="lang-gu" style="display:none;">ડિસ્ટ્રીબ્યુટર અને શોપ રજિસ્ટ્રી</h1>
+              <p class="lang-en">Verification of wholesale distributors, shop details, GSTIN checks, and status audits</p>
+              <p class="lang-hi" style="display:none;">थोक वितरकों का सत्यापन, दुकान विवरण, जीएसटीिन जांच और स्थिति लेखा परीक्षा</p>
+              <p class="lang-gu" style="display:none;">જથ્થાબંધ ડિસ્ટ્રિબ્યુટર્સની ચકાસણી, દુકાન વિગતો, જીએસટીિન તપાસ અને ઓડિટ</p>
+            </div>
+            <div>
+              <button class="btn btn-teal" id="add-shop-btn" onclick="openShopRegistrationModal()">
+                <i data-lucide="store"></i> Register New Shop
+              </button>
+            </div>
+          </div>
+
+          <div class="glass-panel" style="padding:24px;">
+            <div class="table-responsive">
+              <table class="erp-table">
+                <thead>
+                  <tr>
+                    <th>Photo</th>
+                    <th>Shop Name</th>
+                    <th>Proprietor (Owner)</th>
+                    <th>Mobile Contact</th>
+                    <th>Place / Address</th>
+                    <th>Shop Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="shops-registry-table">
+                  <!-- Loaded via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. SALES TEAM HUB VIEW -->
+        <section id="sales-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">Sales Manager Hub</h1>
+              <h1 class="lang-hi" style="display:none;">सेल्स मैनेजर हब</h1>
+              <h1 class="lang-gu" style="display:none;">સેલ્સ મેનેજર હબ</h1>
+              <p class="lang-en">Track regional targets, customer relationship notes, and physical shop visit activities</p>
+              <p class="lang-hi" style="display:none;">क्षेत्रीय लक्ष्यों, ग्राहक संबंध नोट्स और भौतिक दुकान यात्रा गतिविधियों को ट्रैक करें</p>
+              <p class="lang-gu" style="display:none;">પ્રાદેશિક લક્ષ્યો, ગ્રાહક સંબંધોના નોટ્સ અને પ્રત્યક્ષ દુકાનની મુલાકાતોને ટ્રેક કરો</p>
+            </div>
+          </div>
+
+          <!-- Target Charts & Notes log -->
+          <div class="dashboard-layout-row equal-split">
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="target" style="color:var(--primary);"></i> Target Performance Quotient</h3>
+              </div>
+              <div style="height: 250px; position:relative;">
+                <canvas id="sales-target-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- Notes log -->
+            <div class="glass-panel" style="padding:24px; display:flex; flex-direction:column;">
+              <div class="panel-header">
+                <h3><i data-lucide="file-signature" style="color:var(--accent-teal);"></i> Log Shop Visit & Activity</h3>
+              </div>
+              <form id="visit-log-form" onsubmit="handleVisitLogSubmit(event)" style="display:flex; flex-direction:column; gap:12px; flex:1;">
+                <div class="form-input-group" style="margin-bottom:0;">
+                  <label>Select Distributor/Shop</label>
+                  <select id="visit-shop-select" class="form-control" required>
+                    <!-- Populate via JS -->
+                  </select>
+                </div>
+                <div class="form-input-group" style="margin-bottom:0;">
+                  <label>Sales Visit Summary Notes</label>
+                  <textarea id="visit-notes" class="form-control" rows="3" placeholder="Log order prospects, loyalty comments..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:auto;"><i data-lucide="save"></i> Save Visit Record</button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Activity log table -->
+          <div class="glass-panel" style="padding:24px;">
+            <div class="panel-header">
+              <h3><i data-lucide="clipboard-list" style="color:var(--text-secondary);"></i> Shop Activity Audits & Logs</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="erp-table">
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>User Role</th>
+                    <th>Shop Targeted</th>
+                    <th>Activity Log details</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-activities-log">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. REPORTS & GST HUB VIEW -->
+        <section id="reports-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">GST Compliance & Reports</h1>
+              <h1 class="lang-hi" style="display:none;">जीएसटी अनुपालन और रिपोर्ट</h1>
+              <h1 class="lang-gu" style="display:none;">જીએસટી પાલન અને અહેવાલો</h1>
+              <p class="lang-en">Download compliant FMCG tax logs, HSN product metrics, and fiscal returns (PDF, EXCEL)</p>
+              <p class="lang-hi" style="display:none;">अनुपालन योग्य एफएमसीजी कर लॉग, एचएसएन उत्पाद मेट्रिक्स और वित्तीय रिटर्न डाउनलोड करें</p>
+              <p class="lang-gu" style="display:none;">સુસંગત એફએમસીજી ટેક્સ લોગ્સ, એચએસએન પ્રોડક્ટ મેટ્રિક્સ અને નાણાકીય રીટર્ન ડાઉનલોડ કરો</p>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="glass-panel kpi-card" style="--border-color: var(--accent-teal); --bg-glow: var(--accent-teal-glow)">
+              <div class="kpi-header">
+                <span>Total GST Liability</span>
+                <i data-lucide="landmark"></i>
+              </div>
+              <div class="kpi-value" id="report-total-gst">₹0.00</div>
+              <div class="kpi-trend flat">CGST + SGST Combined</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--warning)">
+              <div class="kpi-header">
+                <span>CGST Pool</span>
+                <i data-lucide="wallet"></i>
+              </div>
+              <div class="kpi-value" id="report-cgst-pool">₹0.00</div>
+              <div class="kpi-trend flat">Central Tax Split</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--success)">
+              <div class="kpi-header">
+                <span>SGST Pool</span>
+                <i data-lucide="piggy-bank"></i>
+              </div>
+              <div class="kpi-value" id="report-sgst-pool">₹0.00</div>
+              <div class="kpi-trend flat">State Tax Split</div>
+            </div>
+          </div>
+
+          <!-- PDF & CSV exports card panel -->
+          <div class="dashboard-layout-row equal-split">
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="download-cloud" style="color:var(--primary);"></i> Direct Data Portability exports</h3>
+              </div>
+              <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:20px;">Download complete spreadsheet and document templates containing transaction records, inventory balance, and regional dealer data.</p>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <button class="btn btn-secondary" onclick="exportGSTExcel()"><i data-lucide="file-spreadsheet" style="color:var(--success);"></i> GST Report (Excel)</button>
+                <button class="btn btn-secondary" onclick="exportDailySalesCSV()"><i data-lucide="file-text" style="color:var(--accent-teal);"></i> Sales Logs (CSV)</button>
+                <button class="btn btn-secondary" onclick="exportProductSalesPDF()"><i data-lucide="file-type-2" style="color:var(--danger);"></i> Stock Status (PDF)</button>
+                <button class="btn btn-secondary" onclick="exportShopAuditExcel()"><i data-lucide="database" style="color:var(--warning);"></i> Shop Directory (Excel)</button>
+              </div>
+            </div>
+
+            <!-- Tax splits chart -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="pie-chart" style="color:var(--accent-teal);"></i> GST Tax Tier Allocation</h3>
+              </div>
+              <div style="height: 200px; position:relative;">
+                <canvas id="gst-tax-tiers-chart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. AI ANALYTICS HUB VIEW -->
+        <section id="ai-hub-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">AI Predictive Intelligence Hub</h1>
+              <h1 class="lang-hi" style="display:none;">एआई प्रेडिक्टिव इंटेलिजेंस हब</h1>
+              <h1 class="lang-gu" style="display:none;">એઆઈ પ્રિડિક્ટિવ ઇન્ટેલિજન્સ હબ</h1>
+              <p class="lang-en">Deep learning predictive modeling, demand forecasting, & buying behavior analytics</p>
+              <p class="lang-hi" style="display:none;">डीप लर्निंग प्रेडिक्टिव मॉडलिंग, डिमांड फोरकास्टिंग और खरीदार व्यवहार विश्लेषण</p>
+              <p class="lang-gu" style="display:none;">ડીપ લર્નિંગ પ્રિડિક્ટિવ મોડેલિંગ, ડિમાન્ડ ફોરકાસ્ટિંગ અને બાયર બિહેવિયર એનાલિટિક્સ</p>
+            </div>
+            <div>
+              <button class="btn btn-teal btn-sm" onclick="runAIPredictiveRun()"><i data-lucide="play-circle"></i> Retrain AI Models</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="glass-panel kpi-card" style="--border-color: var(--accent-teal); --bg-glow: var(--accent-teal-glow)">
+              <div class="kpi-header">
+                <span>AI Revenue Predictor (Next Month)</span>
+                <i data-lucide="line-chart"></i>
+              </div>
+              <div class="kpi-value" id="ai-predicted-rev">₹0.00</div>
+              <div class="kpi-trend up"><i data-lucide="trending-up" style="width:12px;"></i> +15.2% Growth Model</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--warning)">
+              <div class="kpi-header">
+                <span>AI Demand Core Confidence</span>
+                <i data-lucide="target"></i>
+              </div>
+              <div class="kpi-value">94.8%</div>
+              <div class="kpi-trend flat">High Confidence Model</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--success)">
+              <div class="kpi-header">
+                <span>Best Selling Product Category</span>
+                <i data-lucide="sparkles"></i>
+              </div>
+              <div class="kpi-value" id="ai-best-category">Personal Care</div>
+              <div class="kpi-trend up">Soap Line Dominance</div>
+            </div>
+          </div>
+
+          <div class="dashboard-layout-row equal-split">
+            <!-- Prediction Trend Graph -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="trending-up" style="color:var(--primary);"></i> AI Revenue Projection vs Real Ledger</h3>
+              </div>
+              <div style="height: 250px; position: relative;">
+                <canvas id="ai-revenue-trend-chart"></canvas>
+              </div>
+            </div>
+
+            <!-- AI Demand forecasting per product -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="bar-chart-2" style="color:var(--accent-teal);"></i> AI Predictive Seasonal Demand velocity</h3>
+              </div>
+              <div style="height: 250px; position: relative;">
+                <canvas id="ai-product-demand-chart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashboard-layout-row equal-split">
+            <!-- AI invoice scanner -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="scan-line" style="color:var(--warning);"></i> AI Invoice Scanner (OCR Engine)</h3>
+              </div>
+              <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:16px;">
+                Upload a supplier bill or invoice image. Our AI OCR algorithm will parse items, box ratios, tax limits, & insert them to the Dealer Cart.
+              </p>
+              
+              <div class="ocr-drag-drop-zone" id="ocr-dropzone" onclick="triggerOCRFileInput()">
+                <i data-lucide="upload-cloud" style="width:40px; height:40px; color:var(--text-muted); margin-bottom:10px;"></i>
+                <span style="font-size:0.85rem; font-weight:600;">Drag & Drop Invoice or Click to Upload</span>
+                <span style="font-size:0.7rem; color:var(--text-muted); margin-top:4px;">Supports PNG, JPEG, PDF up to 5MB</span>
+                <input type="file" id="ocr-file-input" style="display:none;" onchange="handleOCRFileUpload(event)">
+              </div>
+
+              <div id="ocr-status-box" style="display:none; margin-top:16px; padding:12px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid var(--border-glass);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <span id="ocr-status-text" style="font-size:0.8rem; font-weight:600;">AI Engine Analyzing...</span>
+                  <span id="ocr-percent" style="font-size:0.75rem; color:var(--primary); font-weight:700;">0%</span>
+                </div>
+                <div style="height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;">
+                  <div id="ocr-progress-bar" style="width:0%; height:100%; background:var(--primary); transition:width 0.1s;"></div>
+                </div>
+              </div>
+
+              <div id="ocr-results-box" style="display:none; margin-top:16px;">
+                <h4 style="font-size:0.8rem; margin-bottom:8px; font-family:var(--font-heading);"><i data-lucide="check-square" style="color:var(--success); width:14px;"></i> OCR Extracted Ledger Items</h4>
+                <div class="table-responsive" style="max-height:180px; overflow-y:auto;">
+                  <table class="erp-table" style="font-size:0.75rem;">
+                    <thead>
+                      <tr>
+                        <th>Product Term</th>
+                        <th>Extracted Qty</th>
+                        <th>Unit Mode</th>
+                        <th>CGST/SGST</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ocr-extracted-tbody"></tbody>
+                  </table>
+                </div>
+                <button class="btn btn-teal btn-sm" style="width:100%; margin-top:12px;" onclick="loadOCRExtractedToCart()"><i data-lucide="shopping-cart"></i> Import Extracted Items to Cart</button>
+              </div>
+            </div>
+
+            <!-- Customer loyalty & behavior -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="users" style="color:var(--success);"></i> AI Customer CRM Behavior analytics</h3>
+              </div>
+              <div class="table-responsive">
+                <table class="erp-table">
+                  <thead>
+                    <tr>
+                      <th>Distributor Shop</th>
+                      <th>Class Level</th>
+                      <th>Order Freq</th>
+                      <th>Churn Probability</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ai-crm-behavior-table">
+                    <!-- Loaded dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8. ADVANCED GST & HSN DIRECTORY -->
+        <section id="gst-vault-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">GST Compliance & HSN Directory</h1>
+              <h1 class="lang-hi" style="display:none;">जीएसटी अनुपालन और एचएसएन निर्देशिका</h1>
+              <h1 class="lang-gu" style="display:none;">જીએસટી પાલન અને એચએસએન ડિરેક્ટરી</h1>
+              <p class="lang-en">HSN code directory, GST split tax rates, & FMCG product tax tier directory</p>
+              <p class="lang-hi" style="display:none;">एचएसएन कोड डायरेक्टरी, जीएसटी स्प्लिट टैक्स दरें और एफएमसीजी उत्पाद टैक्स टियर डायरेक्टरी</p>
+              <p class="lang-gu" style="display:none;">એચએસએન કોડ ડિરેક્ટરી, જીએસટી સ્પ્લિટ ટેક્સ દરો અને એફએમસીજી પ્રોડક્ટ ટેક્સ ડિરેક્ટરી</p>
+            </div>
+          </div>
+
+          <div class="dashboard-layout-row">
+            <!-- HSN Code directory mapping -->
+            <div class="glass-panel" style="padding:24px; width: 100%;">
+              <div class="panel-header">
+                <h3><i data-lucide="book-open" style="color:var(--primary);"></i> FMCG Product HSN Code Directory</h3>
+              </div>
+              <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                <table class="erp-table">
+                  <thead>
+                    <tr>
+                      <th>Product Class</th>
+                      <th>HSN Code</th>
+                      <th>CGST Rate</th>
+                      <th>SGST Rate</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="gst-hsn-directory-table">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. MOBILE COMPANION APP SIMULATOR -->
+        <section id="mobile-app-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">Mobile Companion Simulator</h1>
+              <h1 class="lang-hi" style="display:none;">मोबाइल साथी सिम्युलेटर</h1>
+              <h1 class="lang-gu" style="display:none;">મોબાઇલ સાથી સિમ્યુલેટર</h1>
+              <p class="lang-en">React Native/Flutter live distributor operations phone simulator</p>
+              <p class="lang-hi" style="display:none;">रिएक्ट नेटिव/फ्लटर लाइव वितरक संचालन फोन सिम्युलेटर</p>
+              <p class="lang-gu" style="display:none;">રિએક્ટ નેટિવ/ફ્લટર લાઇવ ડિસ્ટ્રીબ્યુટર ઓપરેશન્સ ફોન સિમ્યુલેટર</p>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:center; padding:20px 0;">
+            <!-- Smartphone frame UI -->
+            <div class="smartphone-frame">
+              <div class="smartphone-speaker"></div>
+              <div class="smartphone-screen">
+                <!-- Status bar -->
+                <div class="smart-status-bar">
+                  <span id="smart-phone-time">15:30</span>
+                  <div style="display:flex; align-items:center; gap:4px;">
+                    <i data-lucide="wifi" style="width:12px; height:12px;"></i>
+                    <i data-lucide="battery" style="width:14px; height:14px;"></i>
+                  </div>
+                </div>
+
+                <!-- Active smart view -->
+                <div class="smart-body-content" id="smart-app-viewport">
+                  <!-- Generated via smartRenderAppHome() -->
+                </div>
+
+                <!-- Navigation Bottom Bar -->
+                <div class="smart-bottom-nav">
+                  <button class="smart-nav-item active" onclick="smartSwitchView('home')">
+                    <i data-lucide="home"></i>
+                    <span>Home</span>
+                  </button>
+                  <button class="smart-nav-item" onclick="smartSwitchView('scanner')">
+                    <i data-lucide="scan-line"></i>
+                    <span>Scanner</span>
+                  </button>
+                  <button class="smart-nav-item" onclick="smartSwitchView('status')">
+                    <i data-lucide="clock"></i>
+                    <span>Updates</span>
+                  </button>
+                  <button class="smart-nav-item" onclick="smartSwitchView('notif')">
+                    <i data-lucide="bell" style="position:relative;">
+                      <span class="smart-badge-dot" id="smart-notif-dot" style="display:none;"></span>
+                    </i>
+                    <span>Alerts</span>
+                  </button>
+                </div>
+              </div>
+              <div class="smartphone-home-button"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 10. DEALER CREDIT & WALLET -->
+        <section id="credit-wallet-section" style="display:none;" class="animate-fade-in">
+          <div class="dashboard-title-row">
+            <div>
+              <h1 class="lang-en">Dealer Balance Ledger & Wallet</h1>
+              <h1 class="lang-hi" style="display:none;">डीलर क्रेडिट बैलेंस और वॉलेट</h1>
+              <h1 class="lang-gu" style="display:none;">ડીલર ક્રેડિટ બેલેન્સ અને વૉલેટ</h1>
+              <p class="lang-en">Track credit limits, outstanding balances, & mock Razorpay payment transactions</p>
+              <p class="lang-hi" style="display:none;">क्रेडिट सीमा, बकाया राशि और मॉक रेज़रपे भुगतान लेनदेन को ट्रैक करें</p>
+              <p class="lang-gu" style="display:none;">ક્રેડિટ મર્યાદા, બાકી બેલેન્સ અને મોક રેઝરપે પેમેન્ટ વ્યવહારોને ટ્રૅક કરો</p>
+            </div>
+            <div>
+              <button class="btn btn-secondary" onclick="togglePaymentSettingsPanel()" style="display:flex; align-items:center; gap:8px; box-shadow:0 0 14px rgba(13,148,136,0.25); border:1px solid rgba(13,148,136,0.4); border-radius:10px; padding:10px 18px; transition:all 0.3s ease;">
+                <i data-lucide="settings" style="color:var(--accent-teal); width:16px; height:16px;"></i>
+                <span class="lang-en" style="font-weight:600; font-size:0.85rem;">Payment Gateway Settings</span>
+                <span class="lang-hi" style="display:none; font-weight:600; font-size:0.85rem;">भुगतान सेटिंग्स</span>
+                <span class="lang-gu" style="display:none; font-weight:600; font-size:0.85rem;">ચુકવણી સેટિંગ્સ</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Collapsible Real-Life Payment Settings Console -->
+          <div class="glass-panel animate-fade-in" id="payment-settings-panel" style="display:none; padding:20px; margin-bottom:24px; border:1px solid rgba(13, 148, 136, 0.4); background: rgba(13, 148, 136, 0.04); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h3 style="font-family:var(--font-heading); font-weight:700; color:var(--accent-teal); display:flex; align-items:center; gap:8px; margin:0; font-size:1rem;">
+                <i data-lucide="shield-check" style="color:var(--accent-teal);"></i> Real-Life Payment Settings Console
+              </h3>
+              <span class="badge badge-approved" style="font-size:0.7rem; background:rgba(16,185,129,0.15); color:#10b981; border: 1px solid rgba(16,185,129,0.3);">Sandbox Mode Active</span>
+            </div>
+            
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:16px;">
+              <div class="form-input-group" style="margin-bottom:0;">
+                <label style="color:var(--text-secondary); font-weight:600; font-size:0.8rem; margin-bottom:6px; display:block;">Merchant Payee UPI Address</label>
+                <input type="text" id="setting-upi-address" class="form-control" placeholder="e.g. godrejDistributor@upi" value="godrejDistributor@upi" style="background:rgba(0,0,0,0.25); border:1px solid var(--border-glass); font-size:0.85rem;">
+                <span style="font-size:0.7rem; color:var(--text-muted); margin-top:4px; display:block;">The scannable dynamic QR code will link payments to this address.</span>
+              </div>
+              
+              <div class="form-input-group" style="margin-bottom:0;">
+                <label style="color:var(--text-secondary); font-weight:600; font-size:0.8rem; margin-bottom:6px; display:block;">Razorpay Key ID (Test Mode)</label>
+                <input type="text" id="setting-rzp-key" class="form-control" placeholder="rzp_test_..." value="rzp_test_8s20K2vW2m5a5P" style="background:rgba(0,0,0,0.25); border:1px solid var(--border-glass); font-size:0.85rem;">
+                <span style="font-size:0.7rem; color:var(--text-muted); margin-top:4px; display:block;">Enter your test public key to enable standard Razorpay JS popups.</span>
+              </div>
+            </div>
+            
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+              <button class="btn btn-secondary btn-sm" onclick="togglePaymentSettingsPanel()">Cancel</button>
+              <button class="btn btn-teal btn-sm" onclick="savePaymentSettings()"><i data-lucide="save" style="width:14px; height:14px; margin-right:4px;"></i> Save Settings</button>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="glass-panel kpi-card" style="--border-color: var(--primary); --bg-glow: var(--primary-glow)">
+              <div class="kpi-header">
+                <span>Credit Pool Limit</span>
+                <i data-lucide="landmark"></i>
+              </div>
+              <div class="kpi-value" id="wallet-credit-limit">₹50,000.00</div>
+              <div class="kpi-trend flat">Assigned Retail Margin</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--accent-teal); --bg-glow: var(--accent-teal-glow)">
+              <div class="kpi-header">
+                <span>Outstanding Dues Balance</span>
+                <i data-lucide="alert-triangle"></i>
+              </div>
+              <div class="kpi-value" id="wallet-outstanding-due" style="color:var(--danger);">₹14,500.00</div>
+              <div class="kpi-trend down">Repayment Term Active</div>
+            </div>
+
+            <div class="glass-panel kpi-card" style="--border-color: var(--success)">
+              <div class="kpi-header">
+                <span>Wallet Prepaid Balance</span>
+                <i data-lucide="piggy-bank"></i>
+              </div>
+              <div class="kpi-value" id="wallet-prepaid-bal">₹8,750.00</div>
+              <div class="kpi-trend up"><i data-lucide="arrow-up-right"></i> UPI/Razorpay Loaded</div>
+            </div>
+          </div>
+
+          <div class="dashboard-layout-row equal-split">
+            <!-- Repayment/Recharge controller -->
+            <div class="glass-panel" style="padding:24px;">
+              <div class="panel-header">
+                <h3><i data-lucide="wallet-cards" style="color:var(--accent-teal);"></i> Wallet Prepaid Recharge / Repayment Sandbox</h3>
+              </div>
+              <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:16px;">
+                Recharge your dealer prepaid wallet or pay off outstanding credit limit dues using our secure sandbox UPI gateway.
+              </p>
+              
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div class="form-input-group" style="margin-bottom:0;">
+                  <label>Select Shop/Distributor Wallet</label>
+                  <select id="wallet-shop-select" class="form-control" onchange="loadActiveWalletDetails(this.value)">
+                    <!-- Loaded via JS -->
+                  </select>
+                </div>
+                <div class="form-input-group" style="margin-bottom:0;">
+                  <label>Payment Action Goal</label>
+                  <select id="wallet-payment-goal" class="form-control">
+                    <option value="prepaid">Prepaid Wallet Top-up</option>
+                    <option value="credit">Repay Outstanding Due balance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-input-group" style="margin-bottom:16px;">
+                <label>Enter Repayment Amount (₹)</label>
+                <input type="number" id="wallet-payment-amt" class="form-control" placeholder="e.g. 5000" min="100">
+              </div>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <button class="btn btn-teal" onclick="triggerUPIRazorpayCheckout()"><i data-lucide="credit-card"></i> Pay Securely via Razorpay</button>
+                <button class="btn btn-secondary" onclick="triggerMockUPIQRReload()"><i data-lucide="qr-code"></i> Show Instant UPI QR Code</button>
+              </div>
+            </div>
+
+            <!-- Razorpay visual sandbox modal/panel -->
+            <div class="glass-panel" id="razorpay-sandbox-panel" style="padding:24px; border:2px solid var(--border-glass); transition: border-color 0.4s;">
+              <div class="panel-header">
+                <h3><img src="https://razorpay.com/favicon.png" style="width:16px; height:16px; object-fit:contain; margin-right:4px;"> Razorpay Corporate Payment Sandbox</h3>
+                <span class="badge badge-pending">Gateway Ready</span>
+              </div>
+              <div id="razorpay-panel-content" style="text-align:center; padding:20px 0; color:var(--text-muted);">
+                <i data-lucide="lock" style="width:48px; height:48px; margin-bottom:12px; opacity:0.5;"></i>
+                <p style="font-size:0.8rem;">Initialize a secure transaction from the recharge card to activate the live payment simulator.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 11. USER PROFILE & DOSSIER SETTINGS -->
+        <section id="profile-section" style="display:none;" class="animate-fade-in">
+          <!-- Filled dynamically in app.js -->
+        </section>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- FLOATING CART OVERLAY & WIDGET -->
+  <div class="cart-floating-trigger" id="cart-btn" onclick="openCartModal()" style="display:none;">
+    <i data-lucide="shopping-cart"></i>
+    <span class="cart-floating-badge" id="cart-count">0</span>
+  </div>
+
+  <!-- FLOATING AI ASSISTANT CHAT BOT -->
+  <div class="cart-floating-trigger" id="ai-chat-btn" onclick="toggleAIChatbot()" style="bottom: 96px; background: linear-gradient(135deg, #0d9488, #0a7a70); box-shadow: 0 8px 30px rgba(13,148,136,0.5);">
+    <i data-lucide="bot"></i>
+    <span id="ai-chat-notif" style="position:absolute; top:-4px; right:-4px; width:12px; height:12px; background:#e31b23; border-radius:50%; border:2px solid var(--bg-primary); display:block;"></span>
+  </div>
+
+  <!-- PREMIUM AI CHAT DRAWER -->
+  <div class="glass-panel ai-chatbot-drawer" id="ai-chat-drawer" style="width:400px; max-height:620px; display:none; flex-direction:column;">
+    <!-- Header -->
+    <div class="chat-header" style="padding:14px 16px; background:linear-gradient(135deg, #0d9488, #0a7a70); border-radius:16px 16px 0 0; flex-shrink:0;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:36px; height:36px; background:rgba(255,255,255,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(10px);">
+          <i data-lucide="sparkles" style="width:18px; height:18px; color:#fff;"></i>
+        </div>
+        <div>
+          <div style="font-weight:700; font-family:var(--font-heading); font-size:0.9rem; color:#fff;">Godrej AI Assistant</div>
+          <div style="font-size:0.65rem; color:rgba(255,255,255,0.75); display:flex; align-items:center; gap:4px;">
+            <span style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block; animation:pulse-dot 1.5s infinite;"></span>
+            FMCG Intelligence Engine · Online
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button onclick="clearAIChat()" style="background:rgba(255,255,255,0.12); border:none; border-radius:6px; color:#fff; padding:4px 8px; font-size:0.65rem; cursor:pointer; font-family:var(--font-body);">Clear</button>
+        <button class="modal-close" style="color:#ffffff; background:rgba(255,255,255,0.12); border-radius:6px;" onclick="toggleAIChatbot()">&times;</button>
+      </div>
+    </div>
+
+    <!-- Quick Prompts -->
+    <div id="ai-quick-prompts" style="padding:10px 12px; border-bottom:1px solid var(--border-glass); display:flex; gap:6px; flex-wrap:wrap; flex-shrink:0; background:rgba(0,0,0,0.15);">
+      <button class="ai-chip" onclick="sendAIQuickPrompt('Top selling products this month?')">📦 Top Products</button>
+      <button class="ai-chip" onclick="sendAIQuickPrompt('Revenue forecast for next month?')">📈 Forecast</button>
+      <button class="ai-chip" onclick="sendAIQuickPrompt('Show low stock alerts?')">⚠️ Low Stock</button>
+      <button class="ai-chip" onclick="sendAIQuickPrompt('Pending orders status?')">🚚 Orders</button>
+      <button class="ai-chip" onclick="sendAIQuickPrompt('Which shops need attention?')">🏪 Shops</button>
+      <button class="ai-chip" onclick="sendAIQuickPrompt('GST collection summary?')">💰 GST</button>
+    </div>
+
+    <!-- Chat Body -->
+    <div class="chat-body" id="chat-conversation-body" style="flex:1; overflow-y:auto; padding:14px 12px; display:flex; flex-direction:column; gap:10px;">
+      <div class="chat-bubble bot" style="background:rgba(13,148,136,0.08); border:1px solid rgba(13,148,136,0.2);">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:6px;">
+          <div style="width:22px; height:22px; background:linear-gradient(135deg,#0d9488,#0a7a70); border-radius:6px; display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="sparkles" style="width:12px; height:12px; color:#fff;"></i>
+          </div>
+          <span style="font-size:0.7rem; font-weight:700; color:var(--accent-teal);">Godrej AI</span>
+        </div>
+        <span style="font-size:0.82rem; line-height:1.5;">👋 Hello! I'm your <strong>Godrej FMCG Intelligence Assistant</strong>. I can help with:<br><br>
+        • 📊 <strong>Sales analytics</strong> & revenue forecasting<br>
+        • 📦 <strong>Stock management</strong> & reorder alerts<br>
+        • 🏪 <strong>Dealer performance</strong> & CRM insights<br>
+        • 💰 <strong>GST calculations</strong> & billing queries<br><br>
+        Use the quick chips above or type anything!</span>
+      </div>
+    </div>
+
+    <!-- Typing Indicator (hidden) -->
+    <div id="ai-typing-indicator" style="display:none; padding:4px 12px;">
+      <div class="chat-bubble bot" style="padding:10px 14px; background:rgba(13,148,136,0.08); border:1px solid rgba(13,148,136,0.2); width:fit-content;">
+        <div style="display:flex; gap:4px; align-items:center;">
+          <div style="width:7px; height:7px; background:var(--accent-teal); border-radius:50%; animation:typing-dot 1.2s infinite 0s;"></div>
+          <div style="width:7px; height:7px; background:var(--accent-teal); border-radius:50%; animation:typing-dot 1.2s infinite 0.2s;"></div>
+          <div style="width:7px; height:7px; background:var(--accent-teal); border-radius:50%; animation:typing-dot 1.2s infinite 0.4s;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Row -->
+    <div class="chat-input-row" style="flex-shrink:0; padding:12px; border-top:1px solid var(--border-glass); gap:8px; background:rgba(0,0,0,0.15); border-radius:0 0 16px 16px;">
+      <div style="flex:1; display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.04); border:1px solid var(--border-glass); border-radius:10px; padding:6px 12px; transition:border 0.2s;">
+        <i data-lucide="message-square" style="width:14px; height:14px; color:var(--text-muted); flex-shrink:0;"></i>
+        <input type="text" id="chat-input-text" placeholder="Ask anything about FMCG data…" 
+          style="flex:1; background:transparent; border:none; outline:none; font-size:0.82rem; color:var(--text-primary); font-family:var(--font-body);"
+          onkeydown="if(event.key === 'Enter') sendAIChatMessage()">
+      </div>
+      <button onclick="sendAIChatMessage()" style="background:linear-gradient(135deg,#0d9488,#0a7a70); border:none; border-radius:10px; width:38px; height:38px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.08)'" onmouseleave="this.style.transform='scale(1)'">
+        <i data-lucide="send" style="width:15px; height:15px; color:#fff;"></i>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- MODALS PORTFOLIO -->
+
+  <!-- A. AUTHENTICATION — handled by 3D #login-portal-overlay above app-container -->
+  <!-- Legacy login-modal kept as hidden stub for JS compat -->
+  <div class="modal-overlay" id="login-modal" style="display:none;"></div>
+
+  <!-- B. SHOP REGISTRATION FORM -->
+  <div class="modal-overlay" id="shop-registration-modal" style="z-index: 10005;">
+    <div class="glass-panel modal-content" style="max-width: 550px; width: 95%; padding: 24px; overflow-y: auto; border-radius: 20px; max-height: 90vh;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid var(--border-glass); margin-bottom:20px;">
+        <h2 style="font-family:var(--font-heading); font-weight:700; font-size:1.15rem; display:flex; align-items:center; gap:8px; margin:0;"><i data-lucide="store" style="color:var(--primary); width:20px; height:20px;"></i> Dealer Shop Registration Form</h2>
+        <button class="modal-close" onclick="closeShopRegistrationModal()">&times;</button>
+      </div>
+      <form id="shop-reg-form" onsubmit="handleShopRegistrationSubmit(event)" style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-input-group">
+            <label>Shop Entity Name *</label>
+            <input type="text" id="reg-shop-name" class="form-control" placeholder="Krishna Retailers" required>
+          </div>
+          <div class="form-input-group">
+            <label>Proprietor Name *</label>
+            <input type="text" id="reg-owner-name" class="form-control" placeholder="Krishna Patel" required>
+          </div>
+          <div class="form-input-group">
+            <label>Registered Mobile *</label>
+            <input type="tel" id="reg-mobile" class="form-control" placeholder="9876543210" required>
+          </div>
+          <div class="form-input-group">
+            <label>Merchant Shop Type *</label>
+            <select id="reg-shop-type" class="form-control" required>
+              <option value="Retailer">Retailer Dealer</option>
+              <option value="Wholesaler">Wholesale Stockist</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Custom Authentication Credentials -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:0;">
+          <div class="form-input-group" style="margin-bottom:0;">
+            <label>Login Username *</label>
+            <input type="text" id="reg-username" class="form-control" placeholder="Choose username" required>
+          </div>
+          <div class="form-input-group" style="margin-bottom:0;">
+            <label>Login Password *</label>
+            <input type="password" id="reg-password" class="form-control" placeholder="Choose password" required>
+          </div>
+        </div>
+
+        <div class="form-input-group">
+          <label>Full Warehouse Address *</label>
+          <input type="text" id="reg-address" class="form-control" placeholder="102, GIDC Commercial Sector" required>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; margin-bottom:0;">
+          <div class="form-input-group">
+            <label>City *</label>
+            <input type="text" id="reg-city" class="form-control" placeholder="Ahmedabad" required>
+          </div>
+          <div class="form-input-group">
+            <label>State Zone *</label>
+            <input type="text" id="reg-state" class="form-control" placeholder="Gujarat" required>
+          </div>
+          <div class="form-input-group">
+            <label>Postal Pincode *</label>
+            <input type="text" id="reg-pincode" class="form-control" placeholder="380001" maxlength="6" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-teal" style="width:100%; flex-shrink:0; margin-top:8px;"><i data-lucide="check-square"></i> Submit Registration</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- C. PRODUCT CREATOR FORM -->
+  <div class="modal-overlay" id="product-form-modal">
+    <div class="glass-panel modal-content" style="max-width: 650px; width: 95%; padding: 24px; overflow-y: auto; border-radius: 20px; max-height: 90vh;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid var(--border-glass); margin-bottom:20px;">
+        <h2 style="font-family:var(--font-heading); font-weight:700; font-size:1.15rem; display:flex; align-items:center; gap:8px; margin:0;" id="product-modal-title"><i data-lucide="package-plus" style="color:var(--primary); width:20px; height:20px;"></i> Catalog Product Editor</h2>
+        <button class="modal-close" onclick="closeProductFormModal()">&times;</button>
+      </div>
+      <form id="product-editor-form" onsubmit="handleProductSubmit(event)" style="display:flex; flex-direction:column; gap:16px;">
+        <input type="hidden" id="edit-product-id">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="form-input-group">
+            <label>Product Name *</label>
+            <input type="text" id="prod-name" class="form-control" required>
+          </div>
+          <div class="form-input-group">
+            <label>Brand Portfolio *</label>
+            <input type="text" id="prod-brand" class="form-control" value="Godrej" required>
+          </div>
+          <div class="form-input-group">
+            <label>Category Group *</label>
+            <select id="prod-category" class="form-control" required>
+              <option value="Personal Care">Personal Care</option>
+              <option value="Home Insecticides">Home Insecticides</option>
+              <option value="Household Detergent">Household Detergent</option>
+              <option value="Fragrance">Fragrance</option>
+            </select>
+          </div>
+          <div class="form-input-group">
+            <label>Subcategory Line</label>
+            <input type="text" id="prod-subcategory" class="form-control">
+          </div>
+          <div class="form-input-group">
+            <label>HSN GST Code *</label>
+            <input type="text" id="prod-hsn" class="form-control" placeholder="34011110" required>
+          </div>
+          <div class="form-input-group">
+            <label>GST Tax Tier (%) *</label>
+            <select id="prod-gst" class="form-control" required>
+              <option value="5">5% GST Tier</option>
+              <option value="12">12% GST Tier</option>
+              <option value="18" selected>18% GST Tier</option>
+              <option value="28">28% GST Tier</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-input-group">
+          <label>Product Catalog Description</label>
+          <textarea id="prod-desc" class="form-control" rows="2"></textarea>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:12px;">
+          <div class="form-input-group">
+            <label>MRP *</label>
+            <input type="number" step="0.01" id="prod-mrp" class="form-control" required>
+          </div>
+          <div class="form-input-group">
+            <label>Distributor Price *</label>
+            <input type="number" step="0.01" id="prod-dist-price" class="form-control" required>
+          </div>
+          <div class="form-input-group">
+            <label>Wholesale *</label>
+            <input type="number" step="0.01" id="prod-wholesale-price" class="form-control" required>
+          </div>
+          <div class="form-input-group">
+            <label>Retail Price *</label>
+            <input type="number" step="0.01" id="prod-retail-price" class="form-control" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;">
+          <div class="form-input-group">
+            <label>Unit Metric Type *</label>
+            <select id="prod-unit-type" class="form-control" required>
+              <option value="Box">Bulk Box Case</option>
+              <option value="Piece">Single Item Piece</option>
+              <option value="Pack">Bundle Pack</option>
+            </select>
+          </div>
+          <div class="form-input-group">
+            <label>Box Case Ratio Qty</label>
+            <input type="number" id="prod-box-qty" class="form-control" placeholder="e.g. 24 items" value="24">
+          </div>
+          <div class="form-input-group">
+            <label>Unit Weight / Size</label>
+            <input type="text" id="prod-weight" class="form-control" placeholder="e.g. 150g / 500ml">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;">
+          <div class="form-input-group">
+            <label>Barcode ID (GTIN)</label>
+            <input type="text" id="prod-barcode" class="form-control" placeholder="8901157001004">
+          </div>
+          <div class="form-input-group">
+            <label>SKU Inventory Code</label>
+            <input type="text" id="prod-sku" class="form-control" placeholder="GDRJ-SOAP-NO1">
+          </div>
+          <div class="form-input-group">
+            <label>Current Stock (Boxes) *</label>
+            <input type="number" id="prod-stock" class="form-control" required>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:0;">
+          <div class="form-input-group">
+            <label>Min Buffer alert Threshold *</label>
+            <input type="number" id="prod-min-stock" class="form-control" value="5" required>
+          </div>
+          <div class="form-input-group">
+            <label>External Product Image Link</label>
+            <input type="url" id="prod-image" class="form-control" placeholder="https://domain.com/image.png">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-teal" style="width:100%; flex-shrink:0; margin-top:8px;"><i data-lucide="check-square"></i> Save Product to database</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- D. BARCODE SCAN WIDGET MOCK -->
+  <div class="modal-overlay" id="barcode-modal">
+    <div class="glass-panel modal-content" style="max-width:400px;">
+      <div class="modal-header">
+        <h2 style="font-family:var(--font-heading); font-weight:700;"><i data-lucide="scan-line" style="color:var(--primary);"></i> GTIN Barcode Scan Engine</h2>
+        <button class="modal-close" onclick="closeBarcodeModal()">&times;</button>
+      </div>
+      <div style="text-align:center;">
+        <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:16px;">Scan items via high-speed hardware reader emulation or enter a barcode manually to access product detail profiles.</p>
+        <div style="background:#090d16; border:2px solid var(--accent-teal); border-radius:12px; height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; overflow:hidden; margin-bottom:20px;">
+          <div style="position:absolute; width:100%; height:2px; background:var(--primary); top:50%; animation: float 2s infinite ease-in-out; box-shadow:0 0 10px var(--primary-glow);"></div>
+          <i data-lucide="camera" style="width:48px; height:48px; color:var(--text-muted); opacity:0.6;"></i>
+          <span style="font-size:0.7rem; color:var(--text-muted); margin-top:8px;">Optical Lense Simulation active</span>
+        </div>
+
+        <div class="form-input-group">
+          <label>Manual GTIN entry code</label>
+          <input type="text" id="manual-barcode-input" class="form-control" style="text-align:center; font-weight:700; letter-spacing:2px;" placeholder="8901157001004">
+        </div>
+
+        <button class="btn btn-primary" style="width:100%;" onclick="runSimulatedBarcodeScan()"><i data-lucide="search"></i> Lookup Product profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- E. PREMIUM GST INVOICE MODAL -->
+  <div class="modal-overlay" id="invoice-modal">
+    <div class="glass-panel modal-content" style="max-width:780px; width:95%; padding:0; overflow-y:auto; border-radius:20px; max-height:90vh;">
+
+      <!-- Modal Header Bar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:18px 24px; background:linear-gradient(135deg,rgba(227,27,35,0.15),rgba(13,148,136,0.1)); border-bottom:1px solid var(--border-glass);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="background:linear-gradient(135deg,#e31b23,#c41017); width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+            <i data-lucide="file-text" style="color:white; width:20px; height:20px;"></i>
+          </div>
+          <div>
+            <div style="font-family:var(--font-heading); font-weight:800; font-size:1.1rem;">GST Tax Invoice</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">Godrej Consumer Products Ltd — Official B2B Invoice</div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span id="inv-status-pill" class="badge badge-pending" style="font-size:0.7rem;">Pending</span>
+          <button class="modal-close" onclick="closeInvoiceModal()" style="margin-left:8px;">&times;</button>
+        </div>
+      </div>
+
+      <!-- Invoice Body (scrollable) -->
+      <div style="padding:24px;" id="invoice-body-wrapper">
+        <div id="invoice-thermal-print">
+          <!-- Filled dynamically in app.js -->
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div style="display:flex; gap:10px; padding:16px 24px; background:rgba(0,0,0,0.2); border-top:1px solid var(--border-glass); flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="printInvoiceDocument()" style="flex:1; min-width:120px;">
+          <i data-lucide="printer"></i> Print Invoice
+        </button>
+        <button class="btn btn-teal" onclick="downloadInvoicePDF()" style="flex:1; min-width:120px;">
+          <i data-lucide="download"></i> Download PDF
+        </button>
+        <button class="btn btn-secondary" onclick="simulateWhatsAppShare()" style="flex:1; min-width:140px;">
+          <i data-lucide="send"></i> Share WhatsApp
+        </button>
+        <button class="btn btn-secondary" onclick="closeInvoiceModal()" style="min-width:80px;">
+          <i data-lucide="x"></i> Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- F. SHOPPING CART BOARD -->
+  <div class="modal-overlay" id="cart-modal">
+    <div class="glass-panel modal-content" style="max-width:650px; width:95%; padding:24px; overflow-y:auto; border-radius:20px; max-height:90vh;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid var(--border-glass); margin-bottom:20px;">
+        <h2 style="font-family:var(--font-heading); font-weight:700; font-size:1.15rem; display:flex; align-items:center; gap:8px; margin:0;"><i data-lucide="shopping-cart" style="color:var(--primary); width:20px; height:20px;"></i> Selected Bookings Cart</h2>
+        <button class="modal-close" onclick="closeCartModal()">&times;</button>
+      </div>
+      
+      <div id="cart-body-wrapper">
+        <div style="margin-bottom:20px;">
+          <div class="table-responsive">
+            <table class="erp-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Pricing Mode</th>
+                  <th>Wholesale Price</th>
+                  <th>Quantity</th>
+                  <th>Tax %</th>
+                  <th>Line Total</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody id="cart-items-table">
+                <!-- Load cart list -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="glass-panel" style="padding:16px; margin-bottom:0;">
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:8px; color:var(--text-secondary);">
+            <span>Taxable Goods total:</span>
+            <span id="cart-taxable-total">₹0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:8px; color:var(--text-secondary);">
+            <span>Central Tax CGST split:</span>
+            <span id="cart-cgst-total">₹0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:8px; color:var(--text-secondary);">
+            <span>State Tax SGST split:</span>
+            <span id="cart-sgst-total">₹0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:8px; color:var(--text-secondary);">
+            <span>Volume wholesale discount (10%+ on Bulk):</span>
+            <span id="cart-discount-total" style="color:var(--success); font-weight:600;">-₹0.00</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-family:var(--font-heading); font-size:1.2rem; font-weight:800; border-top:1px dashed var(--border-glass); padding-top:10px; margin-top:6px;">
+            <span>Net Payable Grand total:</span>
+            <span id="cart-grand-total">₹0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
+        <button class="btn btn-secondary" onclick="closeCartModal()">Continue Shopping</button>
+        <button class="btn btn-teal" onclick="submitWholesaleOrder()"><i data-lucide="check-square"></i> Book Bulk Orders request</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- G. GPS DELIVERY TRACKER & SIGNATURE DIALOG -->
+  <div class="modal-overlay" id="delivery-modal">
+    <div class="glass-panel modal-content" style="max-width:550px; width:95%; padding:24px; overflow-y:auto; border-radius:20px; max-height:90vh;">
+      <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; border-bottom:1px solid var(--border-glass); margin-bottom:20px;">
+        <h2 style="font-family:var(--font-heading); font-weight:700; font-size:1.15rem; display:flex; align-items:center; gap:8px; margin:0;"><i data-lucide="truck" style="color:var(--primary); width:20px; height:20px;"></i> GPS Fleet Tracking & Delivery Proof</h2>
+        <button class="modal-close" onclick="closeDeliveryModal()">&times;</button>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Path Tracker -->
+        <div class="gps-map-container" id="delivery-gps-map">
+          <!-- Canvas dynamic trace track -->
+          <canvas id="gps-track-canvas" width="500" height="280" style="position:absolute; width:100%; height:100%; top:0; left:0; z-index:10;"></canvas>
+          <div class="gps-truck" id="gps-truck-icon">
+            <i data-lucide="truck" style="width:24px; height:24px; fill:var(--primary); color:#ffffff; stroke-width:1.5;"></i>
+          </div>
+          <!-- Pinpoints -->
+          <div id="gps-pins-container"></div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:16px;">
+          <!-- Left details -->
+          <div>
+            <h4 style="font-family:var(--font-heading); font-size:0.95rem; margin-bottom:8px;" id="delivery-shop-title">Shop Details</h4>
+            <div style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem; color:var(--text-secondary);">
+              <div><strong>Zone Route:</strong> <span id="delivery-route-path">Gujarat North-West Corridor</span></div>
+              <div><strong>ETA Remaining:</strong> <span id="delivery-eta" style="color:var(--warning); font-weight:600;">Calculating...</span></div>
+              <div><strong>Log status:</strong> <span class="badge" id="delivery-status-pill">Pending</span></div>
+            </div>
+            
+            <div style="margin-top:16px;" id="delivery-signature-panel">
+              <label style="font-size:0.775rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:6px;">Dealer Verification Signature</label>
+              <div style="border:1px solid var(--border-glass); background:#ffffff; border-radius:8px; height:90px; position:relative;">
+                <canvas id="signature-canvas" width="280" height="90" style="width:100%; height:100%; cursor:crosshair;"></canvas>
+                <button class="btn btn-secondary btn-sm" style="position:absolute; bottom:4px; right:4px; padding:2px 6px; font-size:0.6rem;" onclick="clearSignatureCanvas()">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right controls -->
+          <div style="display:flex; flex-direction:column; gap:12px; justify-content:center;">
+            <div class="form-input-group" style="margin-bottom:0;" id="delivery-photo-panel">
+              <label>Delivery Challan / Proof photo</label>
+              <input type="file" id="delivery-proof-file" class="form-control" style="font-size:0.75rem;">
+            </div>
+            
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+              <button class="btn btn-teal btn-sm" id="btn-delivery-update" onclick="handleDeliveryStatusUpdate()"><i data-lucide="refresh-cw"></i> Update Stage</button>
+              <button class="btn btn-primary btn-sm" id="btn-delivery-verify" onclick="verifyDeliveryProof()"><i data-lucide="check-circle"></i> Verify Signature & Finish</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CORE SCRIPT IMPLEMENTATION -->
+  <script src="app.js"></script>
+</body>
+</html>
