@@ -73,3 +73,5 @@ const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Godrej FMCG ERP Core Service active on port ${PORT}!`);
 });
+
+module.exports = app;
